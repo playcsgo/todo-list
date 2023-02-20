@@ -29,10 +29,15 @@ app.set('view engine', 'hbs')
 // #5 建立好model todoDB後 呼叫todoDB
 const todoDB = require('./models/todoDB.js')
 
+// # method-override
+const methodOverride = require('method-override')
+app.use(methodOverride('_method'))
+
 // #6 顯示首頁　todo-list
 app.get('/', (req, res) => {
   todoDB.find()
     .lean()
+    .sort({ _id: 'asc'})
     .then(todoItems => res.render('index', { todoItems }))
     .catch(err => console.log(err))
 })
@@ -68,12 +73,13 @@ app.get('/todos/:id/edit', (req, res) => {
 })
 
 // #9-2 edit
-app.post('/todos/:id/edit', (req, res) => {
-  const newTodoItem = req.body.name
+app.put('/todos/:id', (req, res) => {
   const id = req.params.id
+  const { name, isDone } = req.body
   return todoDB.findById(id)
     .then(todo => {
-      todo.name = newTodoItem
+      todo.name = name
+      todo.isDone = isDone === 'on'
       return todo.save()
     })
     .then(() => res.redirect('/'))
@@ -81,7 +87,7 @@ app.post('/todos/:id/edit', (req, res) => {
 })
 
 // #10 Delete
-app.get('/todos/:id/delete', (req, res) => {
+app.delete('/todos/:id', (req, res) => {
   const id = req.params.id
   todoDB.findById(id)
     .then(todo => todo.remove())
