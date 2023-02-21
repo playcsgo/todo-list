@@ -33,67 +33,73 @@ const todoDB = require('./models/todoDB.js')
 const methodOverride = require('method-override')
 app.use(methodOverride('_method'))
 
+
+// #11 使用路由設定改寫
+// 引入路由模組
+const routes = require('./routes')
+app.use(routes)  // .index可以省略, express會自動設定去找index.js  打了反而錯...
+
 // #6 顯示首頁　todo-list
-app.get('/', (req, res) => {
-  todoDB.find()
-    .lean()
-    .sort({ _id: 'asc'})
-    .then(todoItems => res.render('index', { todoItems }))
-    .catch(err => console.log(err))
-})
+// app.get('/', (req, res) => {
+//   todoDB.find()
+//     .lean()
+//     .sort({ _id: 'asc'})
+//     .then(todoItems => res.render('index', { todoItems }))
+//     .catch(err => console.log(err))
+// })
 
-// #7 新增todo-item
-// 導入body-parser  express已經自帶了  裝都不用裝
-// const bodyParser = require('body-parser')   
-app.use(express.urlencoded({ extended: true }))
+// // #7 新增todo-item
+// // 導入body-parser  express已經自帶了  裝都不用裝
+// // const bodyParser = require('body-parser')   
+// app.use(express.urlencoded({ extended: true }))
 
-app.post('/create', (req, res) => {
-  const newItem = req.body.name
-  return todoDB.create({name: newItem})
-    .then(()=> res.redirect('/'))
-    .catch(err => console.log(err))
-})
+// app.post('/create', (req, res) => {
+//   const newItem = req.body.name
+//   return todoDB.create({name: newItem})
+//     .then(()=> res.redirect('/'))
+//     .catch(err => console.log(err))
+// })
 
-// #8 detail
-app.get('/todos/:id', (req, res) => {
-  const id = req.params.id
-  return todoDB.findById(id)
-    .lean()
-    .then(todo => res.render('detail', { todo }))
-    .catch(err => console.error(err))
-})
+// // #8 detail
+// app.get('/todos/:id', (req, res) => {
+//   const id = req.params.id
+//   return todoDB.findById(id)
+//     .lean()
+//     .then(todo => res.render('detail', { todo }))
+//     .catch(err => console.error(err))
+// })
 
-// #9-1 go to edit page
-app.get('/todos/:id/edit', (req, res) => {
-  const id = req.params.id
-  return todoDB.findById(id)
-    .lean()
-    .then(todo => res.render('edit', { todo }))
-    .catch(err => console.error(err))
-})
+// // #9-1 go to edit page
+// app.get('/todos/:id/edit', (req, res) => {
+//   const id = req.params.id
+//   return todoDB.findById(id)
+//     .lean()
+//     .then(todo => res.render('edit', { todo }))
+//     .catch(err => console.error(err))
+// })
 
-// #9-2 edit
-app.put('/todos/:id', (req, res) => {
-  const id = req.params.id
-  const { name, isDone } = req.body
-  return todoDB.findById(id)
-    .then(todo => {
-      todo.name = name
-      todo.isDone = isDone === 'on'
-      return todo.save()
-    })
-    .then(() => res.redirect('/'))
-    .catch(err => console.error(err))
-})
+// // #9-2 edit
+// app.put('/todos/:id', (req, res) => {
+//   const id = req.params.id
+//   const { name, isDone } = req.body
+//   return todoDB.findById(id)
+//     .then(todo => {
+//       todo.name = name
+//       todo.isDone = isDone === 'on'
+//       return todo.save()
+//     })
+//     .then(() => res.redirect('/'))
+//     .catch(err => console.error(err))
+// })
 
-// #10 Delete
-app.delete('/todos/:id', (req, res) => {
-  const id = req.params.id
-  todoDB.findById(id)
-    .then(todo => todo.remove())
-    .then(() => res.redirect('/'))
-    .catch(err => console.error(err))
-})
+// // #10 Delete
+// app.delete('/todos/:id', (req, res) => {
+//   const id = req.params.id
+//   todoDB.findById(id)
+//     .then(todo => todo.remove())
+//     .then(() => res.redirect('/'))
+//     .catch(err => console.error(err))
+// })
 
 app.listen(port, () => {
   console.log(`Express is running on http//localhost${port}`);
